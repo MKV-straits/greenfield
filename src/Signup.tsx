@@ -1,6 +1,7 @@
 import { useState } from "react";
+import axios from "axios";
 
-function Login() {
+function Signup() {
   const [input, setInput] = useState({
     username: "",
     password: "",
@@ -13,12 +14,16 @@ function Login() {
   function handleSubmit(event) {
     event.preventDefault();
     console.log("handling submit", input);
+    axios.post("/user", input).then(() => {
+      console.log(`welcome ${input.username}`);
+    });
   }
+
   return (
     <div>
-      Login
-      <form className="login" id="login" onSubmit={handleSubmit}>
-        <label htmlFor="login" id="username">
+      Signup
+      <form className="signup" id="signup" onSubmit={handleSubmit}>
+        <label htmlFor="signup" id="username">
           username
           <input
             type="text"
@@ -29,7 +34,7 @@ function Login() {
         </label>
 
         <br />
-        <label htmlFor="login" id="password">
+        <label htmlFor="signup" id="password">
           password
           <input
             type="text"
@@ -38,6 +43,7 @@ function Login() {
             value={password}
           />
         </label>
+
         <br />
         <label htmlFor="submit" id="submit">
           <input type="submit" name="submit" />
@@ -47,4 +53,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;
