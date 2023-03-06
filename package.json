@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start:dev": "nodemon server.tsx",
-    "start": "react-scripts start",
+    "start": "concurrently \"react-scripts start\" \"node server.tsx\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -44,5 +44,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
   }
 }
