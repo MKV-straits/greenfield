@@ -1,10 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
+import AuthContext from "./context/AuthProvider";
+import axios from "axios";
 
 function Login() {
+  // const { setAuth } = useContext(AuthContext);
+  const userRef = useRef();
+  const errRef = useRef();
   const [input, setInput] = useState({
     username: "",
     password: "",
   });
+  const [errMsg, setErrMsg] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  // useEffect(() => {
+  //   userRef.current.focus();
+  // }, []);
+  // useEffect(() => {
+  //   setErrMsg("");
+  // }, [input.username, input.password]);
+
   const { username, password } = input;
 
   function handleChange(event) {
@@ -13,37 +28,57 @@ function Login() {
   function handleSubmit(event) {
     event.preventDefault();
     console.log("handling submit", input);
+    axios.post("/authenticate", input).then((response) => {
+      console.log("response: ", response.data);
+      setInput({ ...input, username: "", password: "" });
+      setSuccess(true);
+    });
   }
   return (
-    <div>
-      Login
-      <form className="login" id="login" onSubmit={handleSubmit}>
-        <label htmlFor="login" id="username">
-          username
-          <input
-            type="text"
-            name="username"
-            onChange={handleChange}
-            value={username}
-          />
-        </label>
+    <>
+      {success ? (
+        <section>
+          <h1>success</h1>
+          <br />
+          <p>
+            <a href="#">welcome</a>
+          </p>
+        </section>
+      ) : (
+        <div>
+          Login
+          <form className="login" id="login" onSubmit={handleSubmit}>
+            <label htmlFor="login" id="username">
+              username
+              <input
+                type="text"
+                name="username"
+                onChange={handleChange}
+                value={username}
+                ref={userRef}
+                required
+              />
+            </label>
 
-        <br />
-        <label htmlFor="login" id="password">
-          password
-          <input
-            type="text"
-            name="password"
-            onChange={handleChange}
-            value={password}
-          />
-        </label>
-        <br />
-        <label htmlFor="submit" id="submit">
-          <input type="submit" name="submit" />
-        </label>
-      </form>
-    </div>
+            <br />
+            <label htmlFor="login" id="password">
+              password
+              <input
+                type="password"
+                name="password"
+                onChange={handleChange}
+                value={password}
+                required
+              />
+            </label>
+            <br />
+            <label htmlFor="submit" id="submit">
+              <input type="submit" name="submit" />
+            </label>
+          </form>
+        </div>
+      )}
+    </>
   );
 }
 
