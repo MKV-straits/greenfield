@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 const router = express.Router();
 const app = express();
@@ -11,9 +12,12 @@ app.listen(3001, () => {
   console.log("listening on port 3001");
 });
 
+const password = process.env.REACT_APP_DB_PASSWORD;
+console.log(password, process.env);
+
 mongoose
   .connect(
-    "mongodb+srv://fralinev:XAYVhEsIXJG50WkE@cluster1.2iciml8.mongodb.net/greenfield"
+    `mongodb+srv://fralinev:${password}@cluster1.2iciml8.mongodb.net/greenfield`
   )
   .then(() => console.log("Connected to database"))
   .catch((err) => console.error(["failed to connect to db", err]));
