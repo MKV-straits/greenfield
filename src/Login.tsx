@@ -40,9 +40,7 @@ function Login() {
         <section>
           <h1>success</h1>
           <br />
-          <p>
-            <a>welcome</a>
-          </p>
+          <p>welcome</p>
         </section>
       ) : (
         <div>
