@@ -37,7 +37,7 @@ function Signup() {
         <label htmlFor="signup" id="password">
           password
           <input
-            type="text"
+            type="password"
             name="password"
             onChange={handleChange}
             value={password}

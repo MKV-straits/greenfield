@@ -42,3 +42,6 @@ app.post("/user", (req, res) => {
   addUser(req.body);
   res.send(`new user ${req.body.username} created`);
 });
+app.post("/authenticate", (req, res) => {
+  console.log("log-in request object received: ", req.body);
+});
