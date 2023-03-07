@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef, useContext } from "react";
-import AuthContext from "./context/AuthProvider";
+import { useState } from "react";
+// import AuthContext from "./context/AuthProvider";
 import axios from "axios";
 
 function Login() {
   // const { setAuth } = useContext(AuthContext);
-  const userRef = useRef();
-  const errRef = useRef();
+  // const userRef = useRef();
+  // const errRef = useRef();
   const [input, setInput] = useState({
     username: "",
     password: "",
   });
-  const [errMsg, setErrMsg] = useState("");
+  // const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
 
   // useEffect(() => {
@@ -41,7 +41,7 @@ function Login() {
           <h1>success</h1>
           <br />
           <p>
-            <a href="#">welcome</a>
+            <a>welcome</a>
           </p>
         </section>
       ) : (
@@ -55,7 +55,6 @@ function Login() {
                 name="username"
                 onChange={handleChange}
                 value={username}
-                ref={userRef}
                 required
               />
             </label>
