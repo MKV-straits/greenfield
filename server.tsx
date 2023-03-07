@@ -13,7 +13,6 @@ app.listen(3001, () => {
 });
 
 const password = process.env.REACT_APP_DB_PASSWORD;
-console.log(password, process.env);
 
 mongoose
   .connect(
