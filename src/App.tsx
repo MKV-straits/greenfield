@@ -7,11 +7,11 @@ import Signup from "./Signup";
 import "./App.css";
 
 function App() {
-  useEffect(() => {
-    axios.get("/test").then((data) => {
-      console.log(data);
-    });
-  });
+  // useEffect(() => {
+  //   axios.get("/test").then((data) => {
+  //     console.log(data);
+  //   });
+  // });
 
   return (
     <>
