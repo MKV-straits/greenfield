@@ -63,6 +63,6 @@ app.post("/authenticate", (req, res) => {
   console.log("log-in request object received: ", req.body);
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`listening on port ${process.env.PORT}`);
+app.listen(3001, () => {
+  console.log("listening on port 3001");
 });
