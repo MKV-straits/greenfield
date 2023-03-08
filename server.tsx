@@ -7,6 +7,7 @@ const app = express();
 
 app.use(express.json());
 app.use("/", router);
+app.use(express.static("build"));
 
 const password = process.env.DB_PASSWORD;
 
@@ -62,6 +63,6 @@ app.post("/authenticate", (req, res) => {
   console.log("log-in request object received: ", req.body);
 });
 
-app.listen(3001, () => {
-  console.log("listening on port 3001");
+app.listen(process.env.PORT, () => {
+  console.log(`listening on port ${process.env.PORT}`);
 });

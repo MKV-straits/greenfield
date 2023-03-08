@@ -23,8 +23,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start:dev": "nodemon server.tsx",
-    "start": "concurrently \"react-scripts start\" \"node server.tsx\"",
+    "start:dev": "concurrently \"react-scripts start\" \"nodemon server.tsx\"",
+    "start": "node server.tsx",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

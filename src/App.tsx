@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import { Route, Routes, Link } from "react-router-dom";
-import axios from "axios";
 import Home from "./Home";
 import Login from "./Login";
 import Signup from "./Signup";
