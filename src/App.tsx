@@ -1,17 +1,15 @@
-import { useEffect } from "react";
 import { Route, Routes, Link } from "react-router-dom";
-import axios from "axios";
 import Home from "./Home";
 import Login from "./Login";
 import Signup from "./Signup";
 import "./App.css";
 
 function App() {
-  useEffect(() => {
-    axios.get("/test").then((data) => {
-      console.log(data);
-    });
-  });
+  // useEffect(() => {
+  //   axios.get("/test").then((data) => {
+  //     console.log(data);
+  //   });
+  // });
 
   return (
     <>

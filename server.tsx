@@ -7,12 +7,9 @@ const app = express();
 
 app.use(express.json());
 app.use("/", router);
+app.use(express.static("build"));
 
-app.listen(3001, () => {
-  console.log("listening on port 3001");
-});
-
-const password = process.env.REACT_APP_DB_PASSWORD;
+const password = process.env.DB_PASSWORD;
 
 mongoose
   .connect(
@@ -30,7 +27,17 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 
 function addUser(user) {
-  new User({ username: user.username, password: user.password }).save();
+  console.log("first instance: ", user);
+  return User.findOne({ username: user.user }).then((found) => {
+    console.log("user: ", found);
+    if (!found) {
+      console.log("not found, returning new user");
+      return new User({ username: user.user, password: user.password }).save();
+    } else {
+      console.log("taken!!!");
+      return "taken";
+    }
+  });
 }
 
 app.get("/test", (req, res) => {
@@ -39,9 +46,23 @@ app.get("/test", (req, res) => {
 });
 
 app.post("/user", (req, res) => {
-  addUser(req.body);
-  res.send(`new user ${req.body.username} created`);
+  console.log("app.post: ", req.body);
+  return addUser(req.body).then((result) => {
+    return res.send(result);
+  });
+
+  //   .then((check) => {
+  //     if (check) {
+  //       return res.send(`new user ${req.body.user} created`);
+  //     } else {
+  //       return res.send(`user ${req.body.user} already exists`);
+  //     }
+  //   });
 });
 app.post("/authenticate", (req, res) => {
   console.log("log-in request object received: ", req.body);
+});
+
+app.listen(process.env.PORT, () => {
+  console.log(`listening on port ${process.env.PORT}`);
 });
