@@ -6,7 +6,7 @@ function Home() {
 
   return (
     <>
-      <div className="welcome">
+      <div className="text-3xl text-gray-700 font-bold mb-5">
         <h2>Welcome</h2>
         <pre>{currentUser.username}</pre>
       </div>
