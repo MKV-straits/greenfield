@@ -7,10 +7,10 @@ const easyUserRegex = /^[a-zA-Z][a-zA_Z0-9-_]{2,23}$/;
 const easyPasswordRegex = /^[a-zA-Z][a-zA_Z0-9-_]{2,23}$/;
 
 function Signup() {
-  const userRef = useRef<HTMLInputElement>(null);
-  const errRef = useRef<HTMLInputElement>(null);
+  // const userRef = useRef<HTMLInputElement>(null);
+  // const errRef = useRef<HTMLInputElement>(null);
 
-  const [user, setUser] = useState("");
+  const [username, setUsername] = useState("");
   const [validName, setValidName] = useState(false);
   const [userFocus, setUserFocus] = useState(false);
 
@@ -20,36 +20,33 @@ function Signup() {
 
   const [matchPassword, setMatchPassword] = useState("");
   const [validMatch, setValidMatch] = useState(false);
-  // const [matchFocus, setMatchFocus] = useState(false);
+  const [matchFocus, setMatchFocus] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
   // const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    userRef.current.focus();
+    // console.log(userRef);
+    // userRef.current.focus();
   }, []);
 
   useEffect(() => {
-    const result = easyUserRegex.test(user);
-    console.log(result);
-    console.log(user);
+    const result = easyUserRegex.test(username);
     setValidName(result);
-  }, [user]);
+  }, [username]);
 
   useEffect(() => {
     const result = easyPasswordRegex.test(password);
-    console.log(result);
-    console.log(password);
     setValidPassword(result);
     setValidMatch(password === matchPassword);
   }, [password, matchPassword]);
 
   useEffect(() => {
     setErrorMessage("");
-  }, [user, password, matchPassword]);
+  }, [username, password, matchPassword]);
 
   const handleUserChange = (event) => {
-    return setUser(event.target.value);
+    return setUsername(event.target.value);
   };
   const handlePasswordChange = (event) => {
     return setPassword(event.target.value);
@@ -60,24 +57,26 @@ function Signup() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    return axios.post("/user", { user, password }).then((response) => {
-      console.log(response.data);
-      // setSuccess(true);
-      setUser("");
-      setPassword("");
-      setMatchPassword("");
-    });
+    return axios
+      .post("/auth/signup", { username, password })
+      .then((response) => {
+        console.log(response.data);
+        // setSuccess(true);
+        setUsername("");
+        setPassword("");
+        setMatchPassword("");
+      });
   };
 
   return (
     <section>
-      <p
+      {/* <p
         ref={errRef}
         className={errorMessage ? "error-message" : "offscreen"}
         aria-live="assertive"
       >
         {errorMessage}
-      </p>
+      </p> */}
       <h1>Sign up</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="username">
@@ -85,37 +84,31 @@ function Signup() {
           <input
             type="text"
             id="username"
-            ref={userRef}
+            // ref={userRef}
             autoComplete="off"
-            // onChange={(event) => setUser(event.target.value)}
             onChange={handleUserChange}
-            value={user}
+            value={username}
             required
             aria-invalid={validName ? "false" : "true"}
-            aria-describedby="uidnote"
+            aria-describedby="usernote"
             onFocus={() => setUserFocus(true)}
             onBlur={() => setUserFocus(false)}
           />
-          <p id="uidnote">
-            {userFocus && user && !validName
-              ? "4 to 24 characters. Must begin with a letter. Letters, numbers, underscores, hyphens allowed."
-              : ""}
-          </p>
+          <p id="usernote">{userFocus && username && !validName ? "" : ""}</p>
         </label>
         <label htmlFor="password">
           Password:
           <input
             type="password"
             id="password"
-            ref={userRef}
-            // onChange={(event) => setPassword(event.target.value)}
+            // ref={userRef}
             onChange={handlePasswordChange}
             required
             value={password}
             aria-invalid={validPassword ? "false" : "true"}
             aria-describedby="pwdnote"
-            onFocus={() => setPasswordFocus(true)}
-            onBlur={() => setPasswordFocus(false)}
+            // onFocus={() => setPasswordFocus(true)}
+            // onBlur={() => setPasswordFocus(false)}
           />
           <p id="pwdnote">
             {passwordFocus && password && !validPassword
@@ -128,14 +121,13 @@ function Signup() {
           <input
             type="password"
             id="confirm-password"
-            // onChange={(event) => setMatchPassword(event.target.value)}
             onChange={handleMatchPasswordChange}
             value={matchPassword}
             required
             aria-invalid={validMatch ? "false" : "true"}
             aria-describedby="confirmnote"
-            // onFocus={() => setMatchFocus(true)}
-            // onBlur={() => setMatchFocus(false)}
+            onFocus={() => setMatchFocus(true)}
+            onBlur={() => setMatchFocus(false)}
           />
         </label>
         <button

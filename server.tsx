@@ -1,6 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 const router = express.Router();
 const app = express();
@@ -8,6 +11,7 @@ const app = express();
 app.use(express.json());
 app.use("/", router);
 app.use(express.static("build"));
+app.use(cookieParser());
 
 const password = process.env.DB_PASSWORD;
 
@@ -21,18 +25,35 @@ mongoose
 const userSchema = new mongoose.Schema({
   username: String,
   password: String,
+  token: String,
   date: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model("User", userSchema);
 
-function addUser(user) {
-  console.log("first instance: ", user);
-  return User.findOne({ username: user.user }).then((found) => {
+const generateAccessToken = (user) => {
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "20s" });
+};
+
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (token === null) return res.sendStatus(401);
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) return res.sendStatus(403);
+    console.log("decoded: ", decoded);
+    req.user = decoded;
+    next();
+  });
+};
+
+function addUser(newUser) {
+  const { username, password } = newUser;
+  return User.findOne({ username }).then((found) => {
     console.log("user: ", found);
     if (!found) {
       console.log("not found, returning new user");
-      return new User({ username: user.user, password: user.password }).save();
+      return new User({ username, password }).save();
     } else {
       console.log("taken!!!");
       return "taken";
@@ -40,27 +61,55 @@ function addUser(user) {
   });
 }
 
-app.get("/test", (req, res) => {
-  console.log("backend seems to be working");
-  res.send("backend OK");
+app.get("/test", verifyJWT, (req, res) => {
+  console.log("get / test");
+  res.send("worked");
 });
 
-app.post("/user", (req, res) => {
-  console.log("app.post: ", req.body);
+app.get("/", verifyJWT, (req, res) => {
+  console.log("home got");
+  res.send("home got");
+});
+
+app.post("/auth/signup", (req, res) => {
   return addUser(req.body).then((result) => {
     return res.send(result);
   });
-
-  //   .then((check) => {
-  //     if (check) {
-  //       return res.send(`new user ${req.body.user} created`);
-  //     } else {
-  //       return res.send(`user ${req.body.user} already exists`);
-  //     }
-  //   });
 });
-app.post("/authenticate", (req, res) => {
-  console.log("log-in request object received: ", req.body);
+app.post("/auth/access", async (req, res) => {
+  if (!req.body.username || !req.body.password) {
+    return res
+      .status(400)
+      .json({ message: "username and password are required" });
+  }
+  const foundUser = await User.findOne({ username: req.body.username });
+  if (!foundUser) {
+    return res.status(401).json({ message: "user not found" });
+  }
+  const match = req.body.password === foundUser.password;
+  if (match) {
+    const user = { username: req.body.username };
+    const accessToken = generateAccessToken(user);
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+    await User.updateOne(
+      { username: req.body.username },
+      { $set: { token: accessToken } }
+    );
+    res.cookie("jwt", accessToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    res.json({ accessToken, refreshToken });
+  }
+});
+
+app.post("/auth/signin", verifyJWT, (req, res) => {
+  console.log("SIGNED IN!");
+  res.redirect("/");
+});
+
+app.post("/token", (req, res) => {
+  const refreshToken = req.body.token;
 });
 
 app.listen(3001, () => {
