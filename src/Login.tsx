@@ -1,80 +1,121 @@
-import { useState } from "react";
-// import AuthContext from "./context/AuthProvider";
+import { useState, useEffect, useRef, useContext } from "react";
+import { Navigate } from "react-router-dom";
+import { UserContext } from "./UserContext";
 import axios from "axios";
 
 function Login() {
-  // const { setAuth } = useContext(AuthContext);
+  // const [currentUser, setCurrentUser] = useState(null);
+  const { currentUser, setCurrentUser } = useContext(UserContext);
   // const userRef = useRef();
   // const errRef = useRef();
-  const [input, setInput] = useState({
-    username: "",
-    password: "",
-  });
-  // const [errMsg, setErrMsg] = useState("");
+
+  const userRef = useRef<HTMLInputElement>(null);
+  const errRef = useRef<HTMLInputElement>(null);
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // useEffect(() => {
-  //   userRef.current.focus();
-  // }, []);
-  // useEffect(() => {
-  //   setErrMsg("");
-  // }, [input.username, input.password]);
+  useEffect(() => {
+    userRef.current.focus();
+  }, []);
 
-  const { username, password } = input;
+  useEffect(() => {
+    setErrorMessage("");
+  }, [username, password]);
 
-  function handleChange(event) {
-    return setInput({ ...input, [event.target.name]: event.target.value });
+  function handleUserChange(event) {
+    return setUsername(event.target.value);
   }
-  function handleSubmit(event) {
+  function handlePasswordChange(event) {
+    return setPassword(event.target.value);
+  }
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("handling submit", input);
-    axios.post("/authenticate", input).then((response) => {
-      console.log("response: ", response.data);
-      setInput({ ...input, username: "", password: "" });
+    try {
+      const response = await axios.post(
+        "/auth/access",
+        { username, password },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+      console.log(response?.data);
+      const accessToken = response?.data?.accessToken;
+      await axios.post(
+        "/auth/signin",
+        { username, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setCurrentUser({ username, password, accessToken });
+
+      console.log(username);
+      console.log("current user: ", currentUser);
+      setUsername("");
+      setPassword("");
       setSuccess(true);
-    });
-  }
+    } catch (err) {
+      if (!err?.response) {
+        console.error(err);
+        setErrorMessage("no server response");
+      } else if (err.response?.status === 400) {
+        setErrorMessage("missing username or password");
+      } else if (err.response?.status === 401) {
+        setErrorMessage("aint authorized");
+      } else {
+        setErrorMessage("login failed");
+      }
+      errRef.current.focus();
+    }
+  };
+
+  // event.preventDefault();
+  // console.log("handling submit", input);
+  // axios.post("/authenticate", input).then((response) => {
+  //   console.log("response: ", response.data);
+  //   setInput({ ...input, username: "", password: "" });
+  //   setSuccess(true);
+  // });
+
   return (
     <>
-      {success ? (
-        <section>
-          <h1>success</h1>
-          <br />
-          <p>welcome</p>
-        </section>
-      ) : (
-        <div>
-          Login
-          <form className="login" id="login" onSubmit={handleSubmit}>
-            <label htmlFor="login" id="username">
-              username
-              <input
-                type="text"
-                name="username"
-                onChange={handleChange}
-                value={username}
-                required
-              />
-            </label>
-
-            <br />
-            <label htmlFor="login" id="password">
-              password
-              <input
-                type="password"
-                name="password"
-                onChange={handleChange}
-                value={password}
-                required
-              />
-            </label>
-            <br />
-            <label htmlFor="submit" id="submit">
-              <input type="submit" name="submit" />
-            </label>
-          </form>
-        </div>
-      )}
+      {success ? <Navigate replace to="/" /> : ""}
+      <section>
+        <p ref={errRef}>{errorMessage ? errorMessage : ""}</p>
+        <h1>Sign in</h1>
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="username">
+            Username:
+            <input
+              type="text"
+              id="username"
+              ref={userRef}
+              onChange={handleUserChange}
+              value={username}
+              required
+            />
+          </label>
+          <label htmlFor="username">
+            Password:
+            <input
+              type="password"
+              id="password"
+              ref={userRef}
+              onChange={handlePasswordChange}
+              value={password}
+              required
+            />
+          </label>
+          <button>Sign in</button>
+        </form>
+      </section>
     </>
   );
 }

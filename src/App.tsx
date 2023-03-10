@@ -1,15 +1,20 @@
+import React, { useState, useMemo } from "react";
 import { Route, Routes, Link } from "react-router-dom";
+import axios from "axios";
 import Home from "./Home";
 import Login from "./Login";
 import Signup from "./Signup";
+import Logout from "./Logout";
+import PrivateRoutes from "./PrivateRoutes";
 import "./App.css";
+import { UserContext } from "./UserContext";
 
 function App() {
-  // useEffect(() => {
-  //   axios.get("/test").then((data) => {
-  //     console.log(data);
-  //   });
-  // });
+  const [currentUser, setCurrentUser] = useState({});
+  // const val = useMemo(
+  //   () => ({ currentUser, setCurrentUser }),
+  //   [currentUser, setCurrentUser]
+  // );
 
   return (
     <>
@@ -24,13 +29,23 @@ function App() {
           <li>
             <Link to="/signup">Signup</Link>
           </li>
+          <li>
+            <Link to="/logout">Logout</Link>
+          </li>
         </ul>
       </nav>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-      </Routes>
+      <UserContext.Provider value={{ currentUser, setCurrentUser }}>
+        <Routes>
+          <Route element={<PrivateRoutes />}>
+            <Route path="/" element={<Home />} />
+          </Route>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route element={<PrivateRoutes />}>
+            <Route path="/logout" element={<Logout />} />
+          </Route>
+        </Routes>
+      </UserContext.Provider>
     </>
   );
 }
