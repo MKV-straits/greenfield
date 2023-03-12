@@ -1,12 +1,15 @@
 import { useContext, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
+import axios from "axios";
 
 function Logout() {
   const { currentUser, setCurrentUser } = useContext(UserContext);
 
   useEffect(() => {
-    setCurrentUser({});
+    axios
+      .post("/user/stats", currentUser)
+      .then((response) => console.log(response));
   });
 
   return (

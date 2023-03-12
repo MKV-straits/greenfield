@@ -11,15 +11,11 @@ import { UserContext } from "./UserContext";
 
 function App() {
   const [currentUser, setCurrentUser] = useState({});
-  // const val = useMemo(
-  //   () => ({ currentUser, setCurrentUser }),
-  //   [currentUser, setCurrentUser]
-  // );
 
   return (
     <>
-      <nav>
-        <ul>
+      <nav className="relative flex flex-wrap items-center justify-between px-2 py-3 bg-gray-500 mb-3">
+        <ul className="container px-4 mx-auto flex flex-wrap items-center justify-between">
           <li>
             <Link to="/">Home</Link>
           </li>
@@ -30,7 +26,7 @@ function App() {
             <Link to="/signup">Signup</Link>
           </li>
           <li>
-            <Link to="/logout">Logout</Link>
+            <Link to="/logout">Save & Exit</Link>
           </li>
         </ul>
       </nav>

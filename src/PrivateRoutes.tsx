@@ -4,11 +4,7 @@ import { UserContext } from "./UserContext";
 
 const PrivateRoutes = () => {
   const { currentUser, setCurrentUser } = useContext(UserContext);
-  return currentUser.accessToken?.length ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" />
-  );
+  return currentUser.token?.length ? <Outlet /> : <Navigate to="/login" />;
 };
 
 export default PrivateRoutes;
