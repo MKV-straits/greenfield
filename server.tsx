@@ -25,6 +25,7 @@ mongoose
 const userSchema = new mongoose.Schema({
   username: String,
   password: String,
+  stats: { money: Number, day: Number, plots: [Number] },
   token: String,
   date: { type: Date, default: Date.now },
 });
@@ -52,8 +53,12 @@ function addUser(newUser) {
   return User.findOne({ username }).then((found) => {
     console.log("user: ", found);
     if (!found) {
-      console.log("not found, returning new user");
-      return new User({ username, password }).save();
+      console.log("creating new user");
+      return new User({
+        username,
+        password,
+        stats: { money: 1000, day: 0, plots: [] },
+      }).save();
     } else {
       console.log("taken!!!");
       return "taken";
@@ -69,6 +74,24 @@ app.get("/test", verifyJWT, (req, res) => {
 app.get("/", verifyJWT, (req, res) => {
   console.log("home got");
   res.send("home got");
+});
+
+app.post("/user/stats", async (req, res) => {
+  console.log("saving...");
+  console.log(req.body.stats);
+  await User.updateOne(
+    { username: req.body.username },
+    {
+      $set: {
+        stats: {
+          money: req.body.stats.money,
+          day: req.body.stats.day,
+          plots: req.body.stats.plots,
+        },
+      },
+    }
+  );
+  res.send("signed out");
 });
 
 app.post("/auth/signup", (req, res) => {
@@ -90,7 +113,7 @@ app.post("/auth/access", async (req, res) => {
   if (match) {
     const user = { username: req.body.username };
     const accessToken = generateAccessToken(user);
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+    // const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
     await User.updateOne(
       { username: req.body.username },
       { $set: { token: accessToken } }
@@ -99,7 +122,9 @@ app.post("/auth/access", async (req, res) => {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.json({ accessToken, refreshToken });
+    const dbUser = await User.findOne({ username: req.body.username });
+    console.log("from /access, user: ", user);
+    res.json({ dbUser });
   }
 });
 

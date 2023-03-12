@@ -42,22 +42,25 @@ function Login() {
           withCredentials: true,
         }
       );
-      console.log(response?.data);
-      const accessToken = response?.data?.accessToken;
+      const user = response?.data?.dbUser;
       await axios.post(
         "/auth/signin",
         { username, password },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${user.token}`,
           },
         }
       );
-      setCurrentUser({ username, password, accessToken });
+      setCurrentUser({
+        username,
+        password,
+        stats: user.stats,
+        token: user.token,
+      });
 
-      console.log(username);
-      console.log("current user: ", currentUser);
+      console.log("current user from login page: ", user);
       setUsername("");
       setPassword("");
       setSuccess(true);
@@ -87,33 +90,51 @@ function Login() {
   return (
     <>
       {success ? <Navigate replace to="/" /> : ""}
-      <section>
-        <p ref={errRef}>{errorMessage ? errorMessage : ""}</p>
-        <h1>Sign in</h1>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="username">
-            Username:
-            <input
-              type="text"
-              id="username"
-              ref={userRef}
-              onChange={handleUserChange}
-              value={username}
-              required
-            />
-          </label>
-          <label htmlFor="username">
-            Password:
-            <input
-              type="password"
-              id="password"
-              ref={userRef}
-              onChange={handlePasswordChange}
-              value={password}
-              required
-            />
-          </label>
-          <button>Sign in</button>
+      <section className="w-full max-w-xs">
+        <form
+          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          onSubmit={handleSubmit}
+        >
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="username"
+            >
+              Username:
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                type="text"
+                id="username"
+                ref={userRef}
+                onChange={handleUserChange}
+                value={username}
+                required
+              />
+            </label>
+          </div>
+          <div className="mb-6">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="username"
+            >
+              Password:
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                type="password"
+                id="password"
+                ref={userRef}
+                onChange={handlePasswordChange}
+                value={password}
+                required
+              />
+            </label>
+          </div>
+          <br />
+          <div className="flex items-center justify-between">
+            <button className="object-none object-left-bottom bg-gray-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+              Sign in
+            </button>
+          </div>
         </form>
       </section>
     </>
